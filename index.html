@@ -237,7 +237,123 @@ main,.panel,.topbar,.tabs,.tone-graph-wrap,.practice-quiz{min-width:0;max-width:
   scale: .75;
   transform-origin: center center;
 }
-</style></head><body><main>
+</style>
+<style id="animation-matched-layout">
+/* 字詞動畫：與變音原則共用選擇列、五線圖比例與文字配置。 */
+#animation #words{
+ display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;
+ gap:7px!important;align-items:stretch;width:100%!important;
+}
+#animation #words button{grid-column:span 3!important;width:100%!important;min-width:0!important;min-height:60px!important;box-sizing:border-box}
+#animation #words button:nth-child(n+5){grid-column:span 4!important}
+#lessonContent.animation-matched-content{position:relative;min-width:0;width:100%}
+#lessonContent.animation-matched-content>.poj{
+ display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:90px;line-height:1.15;
+ margin:0 auto 12px;font-size:clamp(27px,7.5vw,50px);
+ text-align:center;overflow-wrap:anywhere
+}
+#lessonContent.animation-matched-content .tone-graph-wrap{width:100%;position:relative;margin:0}
+#lessonContent.animation-matched-content .tone-graph-wrap>svg{width:100%;height:auto;display:block;overflow:visible}
+#lessonContent.animation-matched-content .syllable-labels{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ width:100%;text-align:center;
+ font-size:clamp(25px,7vw,43px);line-height:1.2;transform:none;
+ margin:calc(3 * var(--animation-tab-row-height, 60px)) auto 0
+}
+#lessonContent.animation-matched-content .tone-labels{width:100%}
+@media(max-width:520px){
+ #animation #words{gap:6px!important}
+ #animation #words button{min-height:52px!important;padding:6px 2px!important}
+ #lessonContent.animation-matched-content>.poj{min-height:70px;margin-bottom:9px}
+}
+</style>
+
+<style id="animation-rows-match-principles">
+/* 第二列為共用導覽列，保持既有位置；第三、四列與變音原則完全使用相同格線和高度。 */
+#animation #words{
+ display:grid!important;
+ grid-template-columns:repeat(12,minmax(0,1fr))!important;
+ grid-template-rows:repeat(2,minmax(60px,auto))!important;
+ gap:7px!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin-top:0!important;
+ margin-bottom:10px!important;
+ align-items:stretch!important;
+}
+#animation #words>button{
+ grid-column:span 3!important;
+ grid-row:1!important;
+ min-width:0!important;
+ width:100%!important;
+ height:100%!important;
+ min-height:60px!important;
+ padding:8px 2px!important;
+ font-size:clamp(19.5px,5.4vw,25.5px)!important;
+ line-height:1.2!important;
+ white-space:normal!important;
+ box-sizing:border-box!important;
+}
+#animation #words>button:nth-child(n+5):nth-child(-n+7){grid-column:span 4!important;grid-row:2!important}
+</style>
+
+<style id="practice-rows-match-principles">
+/* 第二列共用導覽和速度控制，保持原位；第三、四列與變音原則同尺寸與間隔。 */
+#practice #practiceWords{
+ display:grid!important;
+ grid-template-columns:repeat(12,minmax(0,1fr))!important;
+ grid-template-rows:repeat(2,minmax(60px,auto))!important;
+ gap:7px!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin-top:0!important;
+ margin-bottom:10px!important;
+ align-items:stretch!important;
+}
+#practice #practiceWords>button{
+ grid-column:span 3!important;
+ grid-row:1!important;
+ min-width:0!important;
+ width:100%!important;
+ height:100%!important;
+ min-height:60px!important;
+ padding:8px 2px!important;
+ font-size:clamp(19.5px,5.4vw,25.5px)!important;
+ line-height:1.2!important;
+ white-space:normal!important;
+ box-sizing:border-box!important;
+}
+#practice #practiceWords>button:nth-child(n+5):nth-child(-n+7){
+ grid-column:span 4!important;
+ grid-row:2!important;
+}
+</style>
+<style id="staff-alignment-fix">
+#lessonContent.animation-matched-content #toneGraphWrap {
+  transform:translateY(var(--animation-staff-offset,0px))!important;
+}
+</style><style id="animation-top-words-down">
+/* 只移動字詞動畫第5線上方的左、中、右白話字整列；不影響五線圖座標 */
+#lessonContent.animation-matched-content > #poj {
+  position:relative;
+  top:var(--animation-poj-down,30px);
+}
+</style>
+<style id="matched-lower-poj-only">
+#lessonContent.animation-matched-content .syllable-labels {font-size:57.6px!important;position:absolute!important;top:var(--matched-lower-top,0px)!important;left:0!important;right:0!important;margin:0!important;transform:none!important}
+</style>
+<style id="animation-bottom-three-sizes">
+/* 字詞動畫最下列：左、中、右三欄的實際螢幕字級。SVG 會隨寬度縮放，故由 JS 校準。 */
+#lessonContent.animation-matched-content #toneDescriptions {overflow:visible;}
+#lessonContent.animation-matched-content #firstTone {font-size:var(--animation-bottom-left-svg-size,48px)!important;}
+#lessonContent.animation-matched-content #verseSource {font-size:var(--animation-bottom-middle-svg-size,38px)!important;}
+#lessonContent.animation-matched-content #lastTone {font-size:var(--animation-bottom-right-svg-size,48px)!important;}
+/* 最下方左右音調說明欄：分別水平移動 28.38 CSS px；中間章節不動。 */
+#lessonContent.animation-matched-content #firstTone {transform:translateX(-28.38px)!important;}
+#lessonContent.animation-matched-content #lastTone {transform:translateX(28.38px)!important;}
+</style>
+</head><body><main>
 <div class="panel" id="lessonPanel"><div class="topbar lesson-topbar"><nav class="tabs" role="tablist" aria-label="內容區學習模式"><button role="tab" id="tab-principles" aria-controls="principles" aria-selected="false">變音原則</button><button role="tab" id="tab-animation" aria-controls="animation" aria-selected="true">字詞動畫</button><button role="tab" id="tab-practice" aria-controls="practice" aria-selected="false">變音練習</button><label class="tone-speed">速度 <select id="speed"><option value="1000">1 秒</option><option value="2000" selected>2 秒</option><option value="4000">4 秒</option><option value="6000">6 秒</option><option value="10000">10 秒</option></select></label></nav></div><section id="principles" role="tabpanel" aria-labelledby="tab-principles" hidden><div class="words" id="principlesWords" aria-label="變音原則頁選擇詞語"></div><div id="principlesLessonHost"></div></section><section id="animation" role="tabpanel" aria-labelledby="tab-animation"><div class="words" id="words" aria-label="選擇詞語"></div><div id="animationLessonHost"><div id="lessonContent"><p class="poj" id="poj"></p><div id="toneGraphWrap" class="tone-graph-wrap"><svg viewBox="0 0 680 157.5" role="img" aria-labelledby="graphTitle graphDesc"><title id="graphTitle">音調變化示意圖</title><desc id="graphDesc"></desc><defs><clipPath id="plotClip"><rect x="-59" y="52" width="1208" height="300"/></clipPath></defs><g id="grid"></g><path id="original" transform="translate(87.5 -17.5) scale(.5)" fill="none" stroke="#999184" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 22"/><path id="changing" transform="translate(87.5 -17.5) scale(.5)" fill="none" stroke="#f19b4d" stroke-width="12" stroke-linecap="round"/><path id="fixed" transform="translate(257.5 -17.5) scale(.5)" fill="none" stroke="#65cdbb" stroke-width="12" stroke-linecap="round"/><g id="principlesLowerArt" hidden><use href="#original"/><use href="#changing"/><use href="#fixed"/></g></svg><span id="ruleOneGraphSample" class="rule-one-graph-sample" aria-live="polite" hidden></span></div><div class="syllable-labels" aria-label="逐音節拼寫"><span id="firstLabel"></span><span id="lastLabel"></span></div><svg id="toneDescriptions" class="tone-labels" viewBox="0 0 680 8" role="img" aria-label="音調說明"><text id="firstTone" x="175" y="4.75" text-anchor="middle" fill="#f19b4d" font-size="12"></text><text id="verseSource" x="345" y="4.75" text-anchor="middle" fill="#aaa396" font-size="12"></text><text id="lastTone" x="515" y="4.75" text-anchor="middle" fill="#65cdbb" font-size="12"></text></svg></div></div></section><section id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden><div class="words" id="practiceWords" aria-label="練習頁選擇詞語"></div><div class="practice-quiz"><div id="quizArea"><div class="question" id="question"></div><div class="answers" id="answers"></div><p class="feedback" id="feedback" aria-live="polite"></p><div class="controls practice-footer"><button id="hint">看提示</button><span id="practiceVerseSource" aria-label="練習詞語章節出處"></span><button class="primary" id="next" disabled>下一題 →</button></div></div><div id="result" hidden></div></div></section></div></main>
 <script>
 'use strict';
@@ -388,7 +504,7 @@ function adjustFourthLine(){
  const svg=$('toneGraphWrap').querySelector('svg'),grid=$('grid');
  const on=activeMode==='principles';
  if(!svg || !grid)return;
- svg.setAttribute('viewBox',on?`0 0 680 ${157.5+RULE_SHIFT}`:'0 0 680 157.5');svg.style.overflow=on?'visible':'';
+ svg.setAttribute('viewBox',activeMode==='practice'?'0 0 680 157.5':`0 0 680 ${157.5+RULE_SHIFT}`);svg.style.overflow=on?'visible':'';
  // 五條線與線號改為同一組移動，移除舊版只移動部分線條的位移。
  for(const node of grid.children)node.removeAttribute('transform');
  const defs=svg.querySelector('defs');
@@ -449,7 +565,7 @@ function showLesson(w){$('poj').className='poj poj-double';$('lastLabel').textCo
 function chooseRule(i){halt();stopRefresh();ruleSelected=i;pickRuleSample(i);p=0;tab('principles');showLesson(ruleWords[i]);scheduleRefresh()}
 function choose(i,mode=activeMode,syncQuiz=true){if(mode==='principles'){chooseRule(i);return}halt();selected=i;p=0;tab(mode);showLesson(words[i]);if(mode==='practice'){if(syncQuiz)restart(i);else if(!$('quizArea').hidden)question()}scheduleRefresh()}
 $('speed').onchange=()=>{p=0;paint();play();scheduleRefresh()};document.addEventListener('visibilitychange',()=>{if(document.hidden)halt();else{p=0;paint();play();if(!refreshTimer)scheduleRefresh()}});
-function tab(name){$('toneDescriptions').style.display=name==='principles'?'none':'';$('lessonContent').className=name==='principles'?'principles-content':'';$(name==='principles'?'principlesLessonHost':'animationLessonHost').append($('lessonContent'));activeMode=name;for(const id of ['principles','animation','practice']){$(id).hidden=id!==name;$('tab-'+id).setAttribute('aria-selected',id===name)}syncWordButtons();adjustFourthLine()}
+function tab(name){$('toneDescriptions').style.display=name==='principles'?'none':'';$('lessonContent').className=name==='principles'?'principles-content':name==='animation'?'animation-matched-content':'';$(name==='principles'?'principlesLessonHost':'animationLessonHost').append($('lessonContent'));activeMode=name;for(const id of ['principles','animation','practice']){$(id).hidden=id!==name;$('tab-'+id).setAttribute('aria-selected',id===name)}syncWordButtons();adjustFourthLine()}
 for(const name of ['principles','animation','practice'])$('tab-'+name).onclick=()=>{if(name==='principles')chooseRule(ruleSelected);else choose(selected,name)};
 let order=[],q=0,score=0,answered=false,quizWords=[],currentCorrect=false;
 function restart(preferred){quizWords=words.map(w=>({...w}));order=words.map((_,i)=>i);for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}if(Number.isInteger(preferred))order=[preferred,...order.filter(i=>i!==preferred)];q=0;score=0;$('quizArea').hidden=false;$('result').hidden=true;question()}
@@ -472,4 +588,76 @@ function question(){
  scheduleRefresh();
 }
 $('hint').onclick=()=>{const w=quizWords[order[q]];$('feedback').textContent=w.n};$('next').onclick=()=>{if(!answered)return;if(currentCorrect)score++;q++;if(q<words.length)question();else{$('quizArea').hidden=true;$('result').hidden=false;$('result').innerHTML=`<h2>完成了！答對 ${score} / ${words.length} 題</h2><p>回到動畫，再看看還不熟悉的變調。</p><button class="primary" id="again">再練一次</button>`;$('again').onclick=restart}};restart();choose(0);
+
+// 字詞動畫：僅下移五線圖下方的「白話字列」與「音調／章節列」。
+// 使用實際的「變音原則」欄位高度作為三倍位移基準。
+(function(){
+  function updateAnimationLowerRowsOffset(){
+    const tab=document.getElementById('tab-principles');
+    const lesson=document.getElementById('lessonContent');
+    if(tab&&lesson){
+      const h=tab.getBoundingClientRect().height;
+      if(h>0)lesson.style.setProperty('--animation-tab-row-height',h+'px');
+    }
+  }
+  updateAnimationLowerRowsOffset();
+  window.addEventListener('resize',updateAnimationLowerRowsOffset);
+})();
+
+// 比對兩頁第 5 線在七選項列下緣的真實位置；以 CSS 變數保持位移，分頁切換不會清除。
+async function matchAnimationStaffToPrinciples(){
+ const originalMode=activeMode;
+ const graph=$('toneGraphWrap'),grid=$('grid');
+ if(!graph||!grid.children.length)return;
+ const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+ graph.style.setProperty('--animation-staff-offset','0px');
+ tab('principles');await settle();
+ const desired=grid.children[0].getBoundingClientRect().top-$('principlesWords').getBoundingClientRect().bottom;
+ tab('animation');await settle();
+ const current=grid.children[0].getBoundingClientRect().top-$('words').getBoundingClientRect().bottom;
+ graph.style.setProperty('--animation-staff-offset',(desired-current)+'px');
+ if(originalMode!=='animation')tab(originalMode);
+}
+requestAnimationFrame(matchAnimationStaffToPrinciples);
+window.addEventListener('resize',()=>requestAnimationFrame(()=>requestAnimationFrame(matchAnimationStaffToPrinciples)));
+
+function alignAnimationPojHalfTabHeight(){
+ const t=document.getElementById('tab-principles');
+ const host=document.getElementById('lessonContent');
+ if(t&&host)host.style.setProperty('--animation-poj-down',(t.getBoundingClientRect().height*0.6)+'px');
+}
+window.addEventListener('resize',alignAnimationPojHalfTabHeight);
+requestAnimationFrame(alignAnimationPojHalfTabHeight);
+
+// 以 Q 頁白話字的實際座標、字級作為 R 頁的定位基準。
+function alignLowerPojFinal(){
+ const original=activeMode,labels=document.querySelector('#lessonContent .syllable-labels');
+ tab('principles');positionPrinciplesBottomLabel();
+ const target=labels.getBoundingClientRect().top,sz=getComputedStyle(labels).fontSize;
+ tab('animation');positionPrinciplesBottomLabel();
+ labels.style.setProperty('--matched-lower-size',sz);
+ const origin=labels.offsetParent.getBoundingClientRect().top;
+ labels.style.setProperty('--matched-lower-top',(target-origin+document.getElementById('tab-principles').getBoundingClientRect().height*0.8)+'px');
+ if(original!=='animation'){tab(original);positionPrinciplesBottomLabel();}
+}
+setTimeout(alignLowerPojFinal,2500);
+window.addEventListener('resize',()=>setTimeout(alignLowerPojFinal,500));
+
+// 在 SVG 縮放下，維持字詞動畫最下三欄的實際顯示字級：28.38、22.79、28.38px。
+(function(){
+ const svg=document.getElementById('toneDescriptions');
+ const root=document.getElementById('lessonContent');
+ if(!svg||!root)return;
+ function updateAnimationBottomFontSizes(){
+  const w=svg.getBoundingClientRect().width;
+  if(w<=0)return;
+  const scale=w/680;
+  root.style.setProperty('--animation-bottom-left-svg-size',(28.38/scale)+'px');
+  root.style.setProperty('--animation-bottom-middle-svg-size',(22.79/scale)+'px');
+  root.style.setProperty('--animation-bottom-right-svg-size',(28.38/scale)+'px');
+ }
+ new ResizeObserver(updateAnimationBottomFontSizes).observe(svg);
+ window.addEventListener('resize',updateAnimationBottomFontSizes);
+ requestAnimationFrame(updateAnimationBottomFontSizes);
+})();
 </script></body></html>
