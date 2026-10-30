@@ -406,6 +406,7 @@ function currentWord(){return activeMode==='principles'?ruleWords[ruleSelected]:
 const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
 const contours={1:[5,5],2:[5,1],3:[2,1],4:[2,1],5:[2,4],7:[3,3],8:[4,4]};
 let selected=0,p=0,frame=0,running=false,last=0,activeMode='animation';
+let measuringLayout=false;
 function curve(t,left){const c=contours[t],short=t===4||t===8;return [left,70+(5-c[0])*66,left+(short?115:190),70+(5-c[1])*66]}
 function path(c){return `M ${c[0]} ${c[1]} L ${c[2]} ${c[3]}`}
 for(let v=1;v<=5;v++){const y=17.5+(5-v)*33;const l=document.createElementNS(ns,'line');for(const [a,b]of Object.entries({x1:58,x2:662,y1:y,y2:y,stroke:'#3b3730','stroke-width':1.5}))l.setAttribute(a,b);$('grid').append(l);const t=document.createElementNS(ns,'text');t.setAttribute('x',20);t.setAttribute('y',y+6);t.setAttribute('fill','#aaa396');t.setAttribute('font-size',19);t.textContent=v;$('grid').append(t)}
@@ -464,7 +465,7 @@ function positionPrinciplesBottomLabel(){
  const labelsHeight=labels.getBoundingClientRect().height || first.getBoundingClientRect().height || 0;
  labels.style.top=(targetCenter-labelsHeight/2)+'px';
 }
-function paint(){const w=currentWord(),a=firstCurve(w),b=curve(w.to,80),ease=p*p*(3-2*p);$('changing').setAttribute('opacity',1);if(w.t===8){const travel=Math.max(0,Math.min(1,(p-.15)/.85)),drop=travel*travel*(3-2*travel)*320;$('changing').setAttribute('clip-path','url(#plotClip)');$('changing').setAttribute('d',path([175,70+drop,175,169+drop]))}else if(w.t===4){const travel=Math.max(0,Math.min(1,(p-.15)/.85)),drop=travel*travel*(3-2*travel),bottomY=70+198*drop;$('changing').setAttribute('clip-path','url(#plotClip)');$('changing').setAttribute('opacity',p<=.15?0:1);$('changing').setAttribute('d',path([175,bottomY-80,175,bottomY]))}else if(w.t===5){$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',roofPath(107+95*ease))}else if(w.t===3||w.t===7){$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',path(rotateLine(a,(w.t===7?Math.PI/4:-2*Math.atan2(a[3]-a[1],a[2]-a[0]))*ease)))}else if(w.t===2){const travel=Math.max(0,(p-.2)/.8),offset=travel*travel*(3-2*travel);$('changing').setAttribute('d',path(a.map((n,i)=>n+(i%2?500:-360)*offset)));$('changing').setAttribute('clip-path','url(#plotClip)')}else{$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',path(a.map((n,i)=>n+(b[i]-n)*ease)))}paintFirstLabel(w);paintSpelling(w);paintRuleGraphSample()}
+function paint(){if(measuringLayout)return;const w=currentWord(),a=firstCurve(w),b=curve(w.to,80),ease=p*p*(3-2*p);$('changing').setAttribute('opacity',1);if(w.t===8){const travel=Math.max(0,Math.min(1,(p-.15)/.85)),drop=travel*travel*(3-2*travel)*320;$('changing').setAttribute('clip-path','url(#plotClip)');$('changing').setAttribute('d',path([175,70+drop,175,169+drop]))}else if(w.t===4){const travel=Math.max(0,Math.min(1,(p-.15)/.85)),drop=travel*travel*(3-2*travel),bottomY=70+198*drop;$('changing').setAttribute('clip-path','url(#plotClip)');$('changing').setAttribute('opacity',p<=.15?0:1);$('changing').setAttribute('d',path([175,bottomY-80,175,bottomY]))}else if(w.t===5){$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',roofPath(107+95*ease))}else if(w.t===3||w.t===7){$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',path(rotateLine(a,(w.t===7?Math.PI/4:-2*Math.atan2(a[3]-a[1],a[2]-a[0]))*ease)))}else if(w.t===2){const travel=Math.max(0,(p-.2)/.8),offset=travel*travel*(3-2*travel);$('changing').setAttribute('d',path(a.map((n,i)=>n+(i%2?500:-360)*offset)));$('changing').setAttribute('clip-path','url(#plotClip)')}else{$('changing').setAttribute('clip-path','none');$('changing').setAttribute('d',path(a.map((n,i)=>n+(b[i]-n)*ease)))}paintFirstLabel(w);paintSpelling(w);paintRuleGraphSample()}
 let refreshTimer=0;
 function stopRefresh(){clearTimeout(refreshTimer);refreshTimer=0}
 function scheduleRefresh(){
@@ -486,7 +487,7 @@ function scheduleRefresh(){
  },Number($('speed').value));
 }
 function halt(){cancelAnimationFrame(frame);running=false}
-function tick(now){if(!running)return;if(last)p=Math.min(1,p+(now-last)/Number($('speed').value));last=now;paint();if(p<1)frame=requestAnimationFrame(tick);else running=false}
+function tick(now){if(!running)return;if(measuringLayout){last=now;frame=requestAnimationFrame(tick);return;}if(last)p=Math.min(1,p+(now-last)/Number($('speed').value));last=now;paint();if(p<1)frame=requestAnimationFrame(tick);else running=false}
 function play(){cancelAnimationFrame(frame);running=true;last=0;frame=requestAnimationFrame(tick)}
 function fixedPath(w){
  if(activeMode==='principles'&&[7,3,2,8].includes(w.t))return '';
@@ -566,7 +567,7 @@ function chooseRule(i){halt();stopRefresh();ruleSelected=i;pickRuleSample(i);p=0
 function choose(i,mode=activeMode,syncQuiz=true){if(mode==='principles'){chooseRule(i);return}halt();selected=i;p=0;tab(mode);showLesson(words[i]);if(mode==='practice'){if(syncQuiz)restart(i);else if(!$('quizArea').hidden)question()}scheduleRefresh()}
 $('speed').onchange=()=>{p=0;paint();play();scheduleRefresh()};document.addEventListener('visibilitychange',()=>{if(document.hidden)halt();else{p=0;paint();play();if(!refreshTimer)scheduleRefresh()}});
 function tab(name){$('toneDescriptions').style.display=name==='principles'?'none':'';$('lessonContent').className=name==='principles'?'principles-content':name==='animation'?'animation-matched-content':'';$(name==='principles'?'principlesLessonHost':'animationLessonHost').append($('lessonContent'));activeMode=name;for(const id of ['principles','animation','practice']){$(id).hidden=id!==name;$('tab-'+id).setAttribute('aria-selected',id===name)}syncWordButtons();adjustFourthLine()}
-for(const name of ['principles','animation','practice'])$('tab-'+name).onclick=()=>{if(name==='principles')chooseRule(ruleSelected);else choose(selected,name)};
+for(const name of ['principles','animation','practice'])$('tab-'+name).onclick=()=>{if(name==='principles')chooseRule(ruleSelected);else choose(selected,name);if(name==='animation'){$('ruleOneGraphSample').hidden=true;$('ruleOneGraphSample').textContent='';}paint()};
 let order=[],q=0,score=0,answered=false,quizWords=[],currentCorrect=false;
 function restart(preferred){quizWords=words.map(w=>({...w}));order=words.map((_,i)=>i);for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}if(Number.isInteger(preferred))order=[preferred,...order.filter(i=>i!==preferred)];q=0;score=0;$('quizArea').hidden=false;$('result').hidden=true;question()}
 function confusingAnswers(w){
@@ -605,21 +606,31 @@ $('hint').onclick=()=>{const w=quizWords[order[q]];$('feedback').textContent=w.n
 })();
 
 // 比對兩頁第 5 線在七選項列下緣的真實位置；以 CSS 變數保持位移，分頁切換不會清除。
-async function matchAnimationStaffToPrinciples(){
- const originalMode=activeMode;
+function matchAnimationStaffToPrinciples(){
+ if(measuringLayout)return;
+ const originalMode=activeMode, originalSelected=selected, originalRule=ruleSelected;
  const graph=$('toneGraphWrap'),grid=$('grid');
  if(!graph||!grid.children.length)return;
- const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
- graph.style.setProperty('--animation-staff-offset','0px');
- tab('principles');await settle();
- const desired=grid.children[0].getBoundingClientRect().top-$('principlesWords').getBoundingClientRect().bottom;
- tab('animation');await settle();
- const current=grid.children[0].getBoundingClientRect().top-$('words').getBoundingClientRect().bottom;
- graph.style.setProperty('--animation-staff-offset',(desired-current)+'px');
- if(originalMode!=='animation')tab(originalMode);
+ measuringLayout=true;
+ try{
+  // 同一個 JavaScript 工作內測量，不再等待動畫影格，防止首次切換與換詞交錯。
+  graph.style.setProperty('--animation-staff-offset','0px');
+  tab('principles');
+  const desired=grid.children[0].getBoundingClientRect().top-$('principlesWords').getBoundingClientRect().bottom;
+  tab('animation');
+  const current=grid.children[0].getBoundingClientRect().top-$('words').getBoundingClientRect().bottom;
+  graph.style.setProperty('--animation-staff-offset',(desired-current)+'px');
+ }finally{
+  selected=originalSelected;ruleSelected=originalRule;
+  tab(originalMode);measuringLayout=false;
+  // 重新繪製選中的同一筆詞語，避免背景測量殘留其他詞的畫面。
+  const word=currentWord();
+  if(word){$('lastLabel').textContent=activeMode==='principles'?'':word.b;paint();}
+ }
 }
-requestAnimationFrame(matchAnimationStaffToPrinciples);
-window.addEventListener('resize',()=>requestAnimationFrame(()=>requestAnimationFrame(matchAnimationStaffToPrinciples)));
+// 第一次顯示前完成定位，避免延後切換分頁。
+matchAnimationStaffToPrinciples();
+window.addEventListener('resize',matchAnimationStaffToPrinciples);
 
 function alignAnimationPojHalfTabHeight(){
  const t=document.getElementById('tab-principles');
@@ -631,17 +642,23 @@ requestAnimationFrame(alignAnimationPojHalfTabHeight);
 
 // 以 Q 頁白話字的實際座標、字級作為 R 頁的定位基準。
 function alignLowerPojFinal(){
+ if(measuringLayout)return;
  const original=activeMode,labels=document.querySelector('#lessonContent .syllable-labels');
- tab('principles');positionPrinciplesBottomLabel();
- const target=labels.getBoundingClientRect().top,sz=getComputedStyle(labels).fontSize;
- tab('animation');positionPrinciplesBottomLabel();
- labels.style.setProperty('--matched-lower-size',sz);
- const origin=labels.offsetParent.getBoundingClientRect().top;
- labels.style.setProperty('--matched-lower-top',(target-origin+document.getElementById('tab-principles').getBoundingClientRect().height*0.8)+'px');
- if(original!=='animation'){tab(original);positionPrinciplesBottomLabel();}
+ if(!labels)return;
+ measuringLayout=true;
+ try{
+  tab('principles');positionPrinciplesBottomLabel();
+  const target=labels.getBoundingClientRect().top,sz=getComputedStyle(labels).fontSize;
+  tab('animation');positionPrinciplesBottomLabel();
+  labels.style.setProperty('--matched-lower-size',sz);
+  const origin=labels.offsetParent.getBoundingClientRect().top;
+  labels.style.setProperty('--matched-lower-top',(target-origin+document.getElementById('tab-principles').getBoundingClientRect().height*0.8-11)+'px');
+ }finally{
+  tab(original);positionPrinciplesBottomLabel();measuringLayout=false;paint();
+ }
 }
-setTimeout(alignLowerPojFinal,2500);
-window.addEventListener('resize',()=>setTimeout(alignLowerPojFinal,500));
+alignLowerPojFinal();
+window.addEventListener('resize',alignLowerPojFinal);
 
 // 在 SVG 縮放下，維持字詞動畫最下三欄的實際顯示字級：28.38、22.79、28.38px。
 (function(){
