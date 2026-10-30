@@ -332,7 +332,10 @@ function adjustPrinciplesGap(){
  const box=graph.getBoundingClientRect(),buttons=$('principlesWords').getBoundingClientRect();
  const gap=Math.max(0,box.top+box.width*17.5/680-buttons.bottom);
  /* 增加等於原距離的留白：按鈕列底部到第五線上方總距離為兩倍。 */
- graph.style.marginTop=gap+'px';
+ /* 第五線和其下方的圖形、白話字等內容一同上移兩個第二排按鈕高度。 */
+ const button=$('principlesWords').querySelector('button:nth-child(5)');
+ const buttonHeight=button?button.getBoundingClientRect().height:0;
+ graph.style.marginTop=(gap-2*buttonHeight)+'px';
 }
 if(typeof window!=='undefined')window.addEventListener('resize',adjustPrinciplesGap);
 function showLesson(w){$('poj').className='poj poj-double';$('lastLabel').textContent=activeMode==='principles'?'':w.b;$('original').setAttribute('d',w.t===4||w.t===8?'':w.t===5?roofPath(107):path(firstCurve(w)));$('fixed').setAttribute('d',fixedPath(w));$('firstTone').textContent=`第 ${w.t} 調 → 第 ${w.to} 調`;$('lastTone').textContent=`第 ${w.u} 調（不變）`;$('verseSource').textContent='馬可福音'+w.verse;$('graphDesc').textContent=`${w.h}：第一字第${w.t}調變為第${w.to}調，第二字第${w.u}調保持不變。`;paint();play();adjustPrinciplesGap();}
