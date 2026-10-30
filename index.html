@@ -583,11 +583,21 @@ function adjustPrinciplesGap(){
  graph.style.marginTop='0px';
 }
 if(typeof window!=='undefined')onStableWidthResize(()=>{adjustPrinciplesGap();moveFiveStaffLinesUp();positionPrinciplesBottomLabel()});
-function showLesson(w){$('poj').className='poj poj-double';$('lastLabel').textContent=activeMode==='principles'?'':w.b;$('original').setAttribute('d',w.t===4||w.t===8?'':w.t===5?roofPath(107):path(firstCurve(w)));$('fixed').setAttribute('d',fixedPath(w));$('firstTone').textContent=`第 ${w.t} 調 → 第 ${w.to} 調`;$('lastTone').textContent=`第 ${w.u} 調（不變）`;$('verseSource').textContent='馬可福音'+w.verse;$('graphDesc').textContent=`${w.h}：第一字第${w.t}調變為第${w.to}調，第二字第${w.u}調保持不變。`;paint();moveFiveStaffLinesUp();positionPrinciplesBottomLabel();play();adjustPrinciplesGap();}
+// 僅手機版「字詞動畫」最下列，將「第 4 調」顯示為「4 調」。
+function updateMobileAnimationToneLabels(){
+ const compact=activeMode==='animation'&&window.matchMedia('(max-width:520px)').matches;
+ for(const id of ['firstTone','lastTone']){
+  const el=$(id);if(!el||!el.textContent)return;
+  el.textContent=el.textContent.replace(/^第\s*(?=\d+\s*調)/,'');
+  if(!compact)el.textContent='第 '+el.textContent;
+ }
+}
+onStableWidthResize(updateMobileAnimationToneLabels);
+function showLesson(w){$('poj').className='poj poj-double';$('lastLabel').textContent=activeMode==='principles'?'':w.b;$('original').setAttribute('d',w.t===4||w.t===8?'':w.t===5?roofPath(107):path(firstCurve(w)));$('fixed').setAttribute('d',fixedPath(w));$('firstTone').textContent=`第 ${w.t} 調 → 第 ${w.to} 調`;$('lastTone').textContent=`第 ${w.u} 調（不變）`;$('verseSource').textContent='馬可福音'+w.verse;updateMobileAnimationToneLabels();$('graphDesc').textContent=`${w.h}：第一字第${w.t}調變為第${w.to}調，第二字第${w.u}調保持不變。`;paint();moveFiveStaffLinesUp();positionPrinciplesBottomLabel();play();adjustPrinciplesGap();}
 function chooseRule(i){halt();stopRefresh();ruleSelected=i;pickRuleSample(i);p=0;tab('principles');showLesson(ruleWords[i]);scheduleRefresh()}
 function choose(i,mode=activeMode,syncQuiz=true){if(mode==='principles'){chooseRule(i);return}halt();selected=i;p=0;tab(mode);showLesson(words[i]);if(mode==='practice'){if(syncQuiz)restart(i);else if(!$('quizArea').hidden)question()}scheduleRefresh()}
 $('speed').onchange=()=>{p=0;paint();play();scheduleRefresh()};document.addEventListener('visibilitychange',()=>{if(document.hidden)halt();else{p=0;paint();play();if(!refreshTimer)scheduleRefresh()}});
-function tab(name){$('toneDescriptions').style.display=name==='principles'?'none':'';$('lessonContent').className=name==='principles'?'principles-content':name==='animation'?'animation-matched-content':'';$(name==='principles'?'principlesLessonHost':'animationLessonHost').append($('lessonContent'));activeMode=name;for(const id of ['principles','animation','practice']){$(id).hidden=id!==name;$('tab-'+id).setAttribute('aria-selected',id===name)}syncWordButtons();adjustFourthLine()}
+function tab(name){$('toneDescriptions').style.display=name==='principles'?'none':'';$('lessonContent').className=name==='principles'?'principles-content':name==='animation'?'animation-matched-content':'';$(name==='principles'?'principlesLessonHost':'animationLessonHost').append($('lessonContent'));activeMode=name;for(const id of ['principles','animation','practice']){$(id).hidden=id!==name;$('tab-'+id).setAttribute('aria-selected',id===name)}syncWordButtons();updateMobileAnimationToneLabels();adjustFourthLine()}
 for(const name of ['principles','animation','practice'])$('tab-'+name).onclick=()=>{if(name==='principles')chooseRule(ruleSelected);else choose(selected,name);if(name==='animation'){$('ruleOneGraphSample').hidden=true;$('ruleOneGraphSample').textContent='';}paint()};
 let order=[],q=0,score=0,answered=false,quizWords=[],currentCorrect=false;
 function restart(preferred){quizWords=words.map(w=>({...w}));order=words.map((_,i)=>i);for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}if(Number.isInteger(preferred))order=[preferred,...order.filter(i=>i!==preferred)];q=0;score=0;$('quizArea').hidden=false;$('result').hidden=true;question()}
