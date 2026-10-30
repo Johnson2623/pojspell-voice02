@@ -395,8 +395,8 @@ main,.panel,.topbar,.tabs,.tone-graph-wrap,.practice-quiz{min-width:0;max-width:
  min-height:35px!important;overflow:visible!important;
 }
 #lessonContent.animation-matched-content #toneGraphWrap{transform:none!important}
-/* 字詞動畫：五線上方左白話字、箭頭、右白話字同步再下移 0.2 個欄位高度（60px × 0.2 = 12px）。 */
-#lessonContent.animation-matched-content>.poj{top:0!important;transform:translateY(calc(var(--shared-word-row-height) * 0.2))!important}
+/* 字詞動畫：五線上方左白話字、箭頭、右白話字在既有 0.2 列基礎上再下移 2 列；累計 2.2 列。 */
+#lessonContent.animation-matched-content>.poj{top:0!important;transform:translateY(calc(var(--shared-word-row-height) * 2.2))!important}
 @media(max-width:520px){
  :root{--shared-word-row-height:60px}
  #principles #principlesWords>button,#animation #words>button,#practice #practiceWords>button{
