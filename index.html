@@ -972,4 +972,34 @@ requestAnimationFrame(alignAnimationPojHalfTabHeight);
  requestAnimationFrame(measure);
  onStableWidthResize(measure);
 })();
-</script></body></html>
+</script>
+<style id="desktop-screen-fit-only">
+/* Only desktop: cap visual size and fit the complete active tab in one screen. */
+@media (min-width: 900px) {
+  html,body { overflow-x:hidden; }
+  main { width:min(870px, 94vw); max-width:870px; margin:0 auto; transform-origin: top center; }
+}
+</style>
+<script id="desktop-screen-fit-script">
+(()=>{
+ const main=document.querySelector('main');if(!main)return;
+ let scheduled=false,lastScale=1;
+ function fit(){
+  scheduled=false;
+  if(window.innerWidth<900){main.style.transform='';main.style.marginBottom='';return;}
+  main.style.transform='';
+  const bounds=main.getBoundingClientRect();
+  const naturalHeight=Math.max(main.scrollHeight,bounds.height);
+  const scale=Math.min(1,Math.max(.45,(window.innerHeight-12)/Math.max(1,naturalHeight)));
+  lastScale=scale;
+  main.style.transform=`scale(${scale})`;
+  main.style.marginBottom=`${-(naturalHeight*(1-scale))}px`;
+ }
+ function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(()=>requestAnimationFrame(fit));}}
+ window.addEventListener('resize',schedule);
+ document.querySelectorAll('[role="tab"],#principlesWords,#words,#practiceWords,#next,#hint').forEach(el=>el.addEventListener('click',()=>{schedule();setTimeout(schedule,100)}));
+ if(typeof ResizeObserver==='function')new ResizeObserver(schedule).observe(main);
+ schedule();
+})();
+</script>
+</body></html>
